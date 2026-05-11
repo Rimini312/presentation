@@ -1,30 +1,335 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Presentation</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:sans-serif}
-#stage{position:relative;width:1280px;height:720px;transform-origin:top left;overflow:hidden}
-.slide{display:none;position:absolute;inset:0}
-.slide.active{display:block}
-.el{position:absolute;object-fit:contain}
-#counter{position:fixed;bottom:12px;right:16px;color:rgba(255,255,255,.45);font-size:14px;z-index:999;pointer-events:none}</style></head><body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Presentation - All Slides with #f2cfcf Background</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: sans-serif;
+    }
+    #stage {
+      position: relative;
+      width: 1280px;
+      height: 720px;
+      transform-origin: top left;
+      overflow: hidden;
+    }
+    .slide {
+      display: none;
+      position: absolute;
+      inset: 0;
+    }
+    .slide.active {
+      display: block;
+    }
+    .el {
+      position: absolute;
+      object-fit: contain;
+    }
+    #counter {
+      position: fixed;
+      bottom: 12px;
+      right: 16px;
+      color: rgba(255,255,255,.45);
+      font-size: 14px;
+      z-index: 999;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
 <div id="stage"></div>
 <div id="counter"></div>
-<script>
-const S=[{"bg":"#f2cfcf","items":[{"src":"media/0.png","type":"image","x":229.94294866276397,"y":28.716156594352615,"w":901.7998163452709,"h":641.3333620293847,"rot":0,"z":0,"chromaKey":false,"chromaColor":"#00ff00","chromaTolerance":80}]},{"bg":"#000000","items":[{"src":"media/1.png","type":"image","x":210.1964603420569,"y":27.77594840449954,"w":936.5913395316804,"h":646.0349230945822,"rot":0,"z":0,"chromaKey":false,"chromaColor":"#00ff00","chromaTolerance":80},{"src":"media/2.mp4","type":"video","x":172.58400769054174,"y":118.9862402433425,"w":967.0816833103765,"h":514.4811395202021,"rot":0,"z":1,"chromaKey":true,"chromaColor":"#28b200","chromaTolerance":80}]},{"bg":"#000000","items":[{"src":"media/3.png","type":"image","x":206.43523301193756,"y":-3.25440125688705,"w":957.2782512626262,"h":723.1405317378328,"rot":0,"z":0,"chromaKey":false,"chromaColor":"#00ff00","chromaTolerance":80}]},{"bg":"#000000","items":[{"src":"media/4.png","type":"image","x":188.5692866161616,"y":24.954983069329664,"w":992.0698461891643,"h":671.4233600206612,"rot":0,"z":0,"chromaKey":false,"chromaColor":"#00ff00","chromaTolerance":80}]},{"bg":"#000000","items":[{"src":"media/5.png","type":"image","x":251.57031967401286,"y":50.343527605601466,"w":856.6647296831956,"h":608.4223628328741,"rot":0,"z":0,"chromaKey":false,"chromaColor":"#00ff00","chromaTolerance":80},{"src":"media/6.mp4","type":"video","x":-158.40586260330582,"y":-397.245196998393,"w":1624.3600063131314,"h":1106.8779054752065,"rot":0,"z":1,"chromaKey":true,"chromaColor":"#2ffe04","chromaTolerance":80}]}];
 
-let ci=0;
-const stage=document.getElementById("stage");
-const counter=document.getElementById("counter");
-function hexRgb(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]}
-const chromaLoops=[];
-function stopChroma(){chromaLoops.forEach(id=>cancelAnimationFrame(id));chromaLoops.length=0}
-function startChroma(){stopChroma();document.querySelectorAll(".slide.active canvas[data-chroma]").forEach(cv=>{const vid=cv._vid;if(!vid)return;const cCol=hexRgb(cv.dataset.chromaColor);const tol=parseFloat(cv.dataset.chromaTol);const tmp=document.createElement("canvas");function loop(){if(vid.readyState>=2){const vw=vid.videoWidth||cv.width;const vh=vid.videoHeight||cv.height;tmp.width=vw;tmp.height=vh;const tc=tmp.getContext("2d",{willReadFrequently:true});tc.drawImage(vid,0,0,vw,vh);const f=tc.getImageData(0,0,vw,vh);const d=f.data;for(let i=0;i<d.length;i+=4){const dr=d[i]-cCol[0],dg=d[i+1]-cCol[1],db=d[i+2]-cCol[2];const dist=Math.sqrt(dr*dr+dg*dg+db*db);if(dist<tol)d[i+3]=0;else if(dist<tol*1.4)d[i+3]=Math.round(255*((dist-tol)/(tol*0.4)))}tc.putImageData(f,0,0);const cx=cv.getContext("2d");cx.clearRect(0,0,cv.width,cv.height);cx.drawImage(tmp,0,0,cv.width,cv.height)}chromaLoops.push(requestAnimationFrame(loop))}loop()})}
-function fit(){const sw=window.innerWidth,sh=window.innerHeight;const sc=Math.min(sw/1280,sh/720);stage.style.transform="scale("+sc+")";stage.style.left=(sw-1280*sc)/2+"px";stage.style.top=(sh-720*sc)/2+"px"}
-function build(){stopChroma();stage.innerHTML="";S.forEach((s,si)=>{const d=document.createElement("div");d.className="slide"+(si===ci?" active":"");d.style.background=s.bg;s.items.sort((a,b)=>a.z-b.z).forEach(it=>{if(it.type==="video"){const vid=document.createElement("video");vid.src=it.src;vid.autoplay=true;vid.loop=true;vid.muted=true;vid.playsInline=true;if(it.chromaKey){vid.style.display="none";d.appendChild(vid);const cv=document.createElement("canvas");cv.className="el";cv.dataset.chroma="1";cv.dataset.chromaColor=it.chromaColor;cv.dataset.chromaTol=it.chromaTolerance;cv.width=Math.round(it.w);cv.height=Math.round(it.h);cv.style.left=it.x+"px";cv.style.top=it.y+"px";cv.style.width=it.w+"px";cv.style.height=it.h+"px";cv.style.transform="rotate("+it.rot+"deg)";cv.style.zIndex=it.z;cv._vid=vid;d.appendChild(cv)}else{vid.className="el";vid.style.left=it.x+"px";vid.style.top=it.y+"px";vid.style.width=it.w+"px";vid.style.height=it.h+"px";vid.style.transform="rotate("+it.rot+"deg)";vid.style.zIndex=it.z;d.appendChild(vid)}}else{const el=document.createElement("img");el.src=it.src;el.className="el";el.style.left=it.x+"px";el.style.top=it.y+"px";el.style.width=it.w+"px";el.style.height=it.h+"px";el.style.transform="rotate("+it.rot+"deg)";el.style.zIndex=it.z;d.appendChild(el)}});stage.appendChild(d)});counter.textContent=(ci+1)+"/"+S.length;startChroma()}
-function go(dir){ci=Math.max(0,Math.min(S.length-1,ci+dir));document.querySelectorAll(".slide").forEach((d,i)=>{d.classList.toggle("active",i===ci)});counter.textContent=(ci+1)+"/"+S.length;startChroma();document.querySelectorAll(".slide.active video").forEach(v=>{v.currentTime=0;v.play()})}
-document.addEventListener("keydown",e=>{if(e.key==="ArrowRight"||e.key===" ")go(1);if(e.key==="ArrowLeft")go(-1)});
-document.addEventListener("click",e=>{if(e.clientX>window.innerWidth/2)go(1);else go(-1)});
-window.addEventListener("resize",fit);
-fit();build();
-</script></body></html>
+<script>
+  // ===================== SLIDES DATA =====================
+  // All slides now use the same background: "#f2cfcf"
+  const S = [
+    {
+      "bg": "#f2cfcf",
+      "items": [
+        {
+          "src": "media/0.png",
+          "type": "image",
+          "x": 229.94294866276397,
+          "y": 28.716156594352615,
+          "w": 901.7998163452709,
+          "h": 641.3333620293847,
+          "rot": 0,
+          "z": 0,
+          "chromaKey": false,
+          "chromaColor": "#00ff00",
+          "chromaTolerance": 80
+        }
+      ]
+    },
+    {
+      "bg": "#f2cfcf",   // was "#000000"
+      "items": [
+        {
+          "src": "media/1.png",
+          "type": "image",
+          "x": 210.1964603420569,
+          "y": 27.77594840449954,
+          "w": 936.5913395316804,
+          "h": 646.0349230945822,
+          "rot": 0,
+          "z": 0,
+          "chromaKey": false,
+          "chromaColor": "#00ff00",
+          "chromaTolerance": 80
+        },
+        {
+          "src": "media/2.mp4",
+          "type": "video",
+          "x": 172.58400769054174,
+          "y": 118.9862402433425,
+          "w": 967.0816833103765,
+          "h": 514.4811395202021,
+          "rot": 0,
+          "z": 1,
+          "chromaKey": true,
+          "chromaColor": "#28b200",
+          "chromaTolerance": 80
+        }
+      ]
+    },
+    {
+      "bg": "#f2cfcf",   // was "#000000"
+      "items": [
+        {
+          "src": "media/3.png",
+          "type": "image",
+          "x": 206.43523301193756,
+          "y": -3.25440125688705,
+          "w": 957.2782512626262,
+          "h": 723.1405317378328,
+          "rot": 0,
+          "z": 0,
+          "chromaKey": false,
+          "chromaColor": "#00ff00",
+          "chromaTolerance": 80
+        }
+      ]
+    },
+    {
+      "bg": "#f2cfcf",   // was "#000000"
+      "items": [
+        {
+          "src": "media/4.png",
+          "type": "image",
+          "x": 188.5692866161616,
+          "y": 24.954983069329664,
+          "w": 992.0698461891643,
+          "h": 671.4233600206612,
+          "rot": 0,
+          "z": 0,
+          "chromaKey": false,
+          "chromaColor": "#00ff00",
+          "chromaTolerance": 80
+        }
+      ]
+    },
+    {
+      "bg": "#f2cfcf",   // was "#000000"
+      "items": [
+        {
+          "src": "media/5.png",
+          "type": "image",
+          "x": 251.57031967401286,
+          "y": 50.343527605601466,
+          "w": 856.6647296831956,
+          "h": 608.4223628328741,
+          "rot": 0,
+          "z": 0,
+          "chromaKey": false,
+          "chromaColor": "#00ff00",
+          "chromaTolerance": 80
+        },
+        {
+          "src": "media/6.mp4",
+          "type": "video",
+          "x": -158.40586260330582,
+          "y": -397.245196998393,
+          "w": 1624.3600063131314,
+          "h": 1106.8779054752065,
+          "rot": 0,
+          "z": 1,
+          "chromaKey": true,
+          "chromaColor": "#2ffe04",
+          "chromaTolerance": 80
+        }
+      ]
+    }
+  ];
+
+  // ===================== PRESENTATION LOGIC =====================
+  let ci = 0;  // current slide index
+  const stage = document.getElementById("stage");
+  const counter = document.getElementById("counter");
+
+  // Helper: convert hex color to RGB array
+  function hexRgb(h) {
+    return [
+      parseInt(h.slice(1, 3), 16),
+      parseInt(h.slice(3, 5), 16),
+      parseInt(h.slice(5, 7), 16)
+    ];
+  }
+
+  let chromaLoops = [];
+
+  function stopChroma() {
+    chromaLoops.forEach(id => cancelAnimationFrame(id));
+    chromaLoops.length = 0;
+  }
+
+  function startChroma() {
+    stopChroma();
+    document.querySelectorAll(".slide.active canvas[data-chroma]").forEach(cv => {
+      const vid = cv._vid;
+      if (!vid) return;
+      const cCol = hexRgb(cv.dataset.chromaColor);
+      const tol = parseFloat(cv.dataset.chromaTol);
+      const tmp = document.createElement("canvas");
+
+      function loop() {
+        if (vid.readyState >= 2) {
+          const vw = vid.videoWidth || cv.width;
+          const vh = vid.videoHeight || cv.height;
+          tmp.width = vw;
+          tmp.height = vh;
+          const tc = tmp.getContext("2d", { willReadFrequently: true });
+          tc.drawImage(vid, 0, 0, vw, vh);
+          const f = tc.getImageData(0, 0, vw, vh);
+          const d = f.data;
+          for (let i = 0; i < d.length; i += 4) {
+            const dr = d[i] - cCol[0];
+            const dg = d[i+1] - cCol[1];
+            const db = d[i+2] - cCol[2];
+            const dist = Math.sqrt(dr*dr + dg*dg + db*db);
+            if (dist < tol) d[i+3] = 0;
+            else if (dist < tol * 1.4) d[i+3] = Math.round(255 * ((dist - tol) / (tol * 0.4)));
+          }
+          tc.putImageData(f, 0, 0);
+          const cx = cv.getContext("2d");
+          cx.clearRect(0, 0, cv.width, cv.height);
+          cx.drawImage(tmp, 0, 0, cv.width, cv.height);
+        }
+        chromaLoops.push(requestAnimationFrame(loop));
+      }
+      loop();
+    });
+  }
+
+  function fit() {
+    const sw = window.innerWidth;
+    const sh = window.innerHeight;
+    const sc = Math.min(sw / 1280, sh / 720);
+    stage.style.transform = "scale(" + sc + ")";
+    stage.style.left = (sw - 1280 * sc) / 2 + "px";
+    stage.style.top = (sh - 720 * sc) / 2 + "px";
+  }
+
+  function build() {
+    stopChroma();
+    stage.innerHTML = "";
+    S.forEach((s, si) => {
+      const d = document.createElement("div");
+      d.className = "slide" + (si === ci ? " active" : "");
+      d.style.background = s.bg;   // now all slides have "#f2cfcf"
+      s.items.sort((a, b) => a.z - b.z).forEach(it => {
+        if (it.type === "video") {
+          const vid = document.createElement("video");
+          vid.src = it.src;
+          vid.autoplay = true;
+          vid.loop = true;
+          vid.muted = true;
+          vid.playsInline = true;
+          if (it.chromaKey) {
+            vid.style.display = "none";
+            d.appendChild(vid);
+            const cv = document.createElement("canvas");
+            cv.className = "el";
+            cv.dataset.chroma = "1";
+            cv.dataset.chromaColor = it.chromaColor;
+            cv.dataset.chromaTol = it.chromaTolerance;
+            cv.width = Math.round(it.w);
+            cv.height = Math.round(it.h);
+            cv.style.left = it.x + "px";
+            cv.style.top = it.y + "px";
+            cv.style.width = it.w + "px";
+            cv.style.height = it.h + "px";
+            cv.style.transform = "rotate(" + it.rot + "deg)";
+            cv.style.zIndex = it.z;
+            cv._vid = vid;
+            d.appendChild(cv);
+          } else {
+            vid.className = "el";
+            vid.style.left = it.x + "px";
+            vid.style.top = it.y + "px";
+            vid.style.width = it.w + "px";
+            vid.style.height = it.h + "px";
+            vid.style.transform = "rotate(" + it.rot + "deg)";
+            vid.style.zIndex = it.z;
+            d.appendChild(vid);
+          }
+        } else { // image
+          const el = document.createElement("img");
+          el.src = it.src;
+          el.className = "el";
+          el.style.left = it.x + "px";
+          el.style.top = it.y + "px";
+          el.style.width = it.w + "px";
+          el.style.height = it.h + "px";
+          el.style.transform = "rotate(" + it.rot + "deg)";
+          el.style.zIndex = it.z;
+          d.appendChild(el);
+        }
+      });
+      stage.appendChild(d);
+    });
+    counter.textContent = (ci + 1) + "/" + S.length;
+    startChroma();
+  }
+
+  function go(dir) {
+    ci = Math.max(0, Math.min(S.length - 1, ci + dir));
+    document.querySelectorAll(".slide").forEach((d, i) => {
+      d.classList.toggle("active", i === ci);
+    });
+    counter.textContent = (ci + 1) + "/" + S.length;
+    startChroma();
+    document.querySelectorAll(".slide.active video").forEach(v => {
+      v.currentTime = 0;
+      v.play();
+    });
+  }
+
+  // Event listeners
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight" || e.key === " ") go(1);
+    if (e.key === "ArrowLeft") go(-1);
+  });
+  document.addEventListener("click", e => {
+    if (e.clientX > window.innerWidth / 2) go(1);
+    else go(-1);
+  });
+  window.addEventListener("resize", fit);
+
+  // Initialize
+  fit();
+  build();
+</script>
+</body>
+</html>
